@@ -2,6 +2,7 @@ package com.mogun.facerecognize
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import com.mogun.facerecognize.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -13,5 +14,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        binding.startDetectButton.setOnClickListener {
+            it.isVisible = false
+        }
     }
 }
