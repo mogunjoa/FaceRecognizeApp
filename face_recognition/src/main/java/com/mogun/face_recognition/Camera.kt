@@ -5,7 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
@@ -41,6 +41,7 @@ class Camera(private val context: Context): ActivityCompat.OnRequestPermissionsR
     private var listener: FaceAnalyzerListenr? = null
 
     fun initCamera(layout: ViewGroup, listener: FaceAnalyzerListenr) {
+        this.listener = listener
         previewView = PreviewView(context)
         layout.addView(previewView)
         permissionCheck(context)
@@ -82,7 +83,7 @@ class Camera(private val context: Context): ActivityCompat.OnRequestPermissionsR
     // 메인에서 호출할 함수
     fun startFaceDetect() {
         val cameraProvider = cameraProviderFuture.get()
-        val faceAnalyzer = FaceAnalyzer((context as LifecycleOwner).lifecycle, previewView, listener)
+        val faceAnalyzer = FaceAnalyzer((context as ComponentActivity).lifecycle, previewView, listener)
         val analysisUseCase = ImageAnalysis.Builder()
             .build()
             .also {
@@ -124,13 +125,9 @@ class Camera(private val context: Context): ActivityCompat.OnRequestPermissionsR
                 if(grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                     flag = false
                 }
-                if(flag) {
-                    openPreView()
-                } else {
-                    Toast.makeText(context, "카메라 권한을 허용해주세요.", Toast.LENGTH_SHORT).show()
-                    (context as Activity).finish()
-                }
             }
+
+
         }
     }
 }

@@ -21,6 +21,7 @@ class MainActivity : AppCompatActivity(), FaceAnalyzerListenr {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
         setProgressText("시작하기를 눌러주세요.")
         camera.initCamera(binding.cameraLayout, this)
 
@@ -46,6 +47,7 @@ class MainActivity : AppCompatActivity(), FaceAnalyzerListenr {
 
     override fun detectProgress(progress: Float, message: String) {
         setProgressText(message)
+        binding.faceOverlayView.setProgress(progress)
     }
 
     override fun faceSize(
