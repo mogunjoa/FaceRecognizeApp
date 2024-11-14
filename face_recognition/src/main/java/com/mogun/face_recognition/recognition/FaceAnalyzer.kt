@@ -29,7 +29,6 @@ internal class FaceAnalyzer(
     private var preWidth = 0F
     private var preHeight = 0F
 
-
     private val options = FaceDetectorOptions.Builder()
         .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)  // 정확도
         .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL) // 윤곽선

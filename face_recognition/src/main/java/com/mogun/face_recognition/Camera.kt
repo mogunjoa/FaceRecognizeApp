@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -14,6 +15,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.google.common.util.concurrent.ListenableFuture
+import com.mogun.face_recognition.recognition.FaceAnalyzer
+import com.mogun.face_recognition.recognition.FaceAnalyzerListenr
 import java.util.concurrent.Executors
 
 class Camera(private val context: Context): ActivityCompat.OnRequestPermissionsResultCallback {
@@ -35,8 +38,9 @@ class Camera(private val context: Context): ActivityCompat.OnRequestPermissionsR
     private lateinit var previewView: PreviewView
 
     private var cameraExecutor = Executors.newSingleThreadExecutor()
+    private var listener: FaceAnalyzerListenr? = null
 
-    fun initCamera(layout: ViewGroup) {
+    fun initCamera(layout: ViewGroup, listener: FaceAnalyzerListenr) {
         previewView = PreviewView(context)
         layout.addView(previewView)
         permissionCheck(context)
@@ -56,7 +60,7 @@ class Camera(private val context: Context): ActivityCompat.OnRequestPermissionsR
         cameraProviderFuture = ProcessCameraProvider.getInstance(context)
             .also { providerFuture ->
                 providerFuture.addListener({
-
+                    startPreview(context)
                 }, ContextCompat.getMainExecutor(context))
             }
     }
@@ -70,6 +74,40 @@ class Camera(private val context: Context): ActivityCompat.OnRequestPermissionsR
                 cameraSelector,
                 preview
             )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    // 메인에서 호출할 함수
+    fun startFaceDetect() {
+        val cameraProvider = cameraProviderFuture.get()
+        val faceAnalyzer = FaceAnalyzer((context as LifecycleOwner).lifecycle, previewView, listener)
+        val analysisUseCase = ImageAnalysis.Builder()
+            .build()
+            .also {
+                it.setAnalyzer(
+                    cameraExecutor,
+                    faceAnalyzer
+                )
+            }
+
+        try {
+            cameraProvider.bindToLifecycle(
+                context as LifecycleOwner,
+                cameraSelector,
+                preview,
+                analysisUseCase
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun stopFaceDetect() {
+        try {
+            cameraProviderFuture.get().unbindAll()
+            previewView.releasePointerCapture()
         } catch (e: Exception) {
             e.printStackTrace()
         }
